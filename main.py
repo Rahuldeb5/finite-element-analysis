@@ -13,34 +13,48 @@ def add_force(x, y, z, theta):
 
 
 scene.background = color.white
-scene.width = 800
-scene.height = 500
-scene.camera.pos = vec(3, 3, 10)
-scene.camera.axis = vec(0, -0.3, -1)
+scene.width = 900
+scene.height = 600
+scene.camera.pos = vec(0, 5, 14)
+scene.camera.axis = vec(0, -0.35, -1)
+scene.title = "Click on the beam to add a force arrow"
+ 
+wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=2, width=2,
+           color=vec(0.5, 0.5, 0.55))
+ 
+beam = box(pos=vec(0, 0, 0), length=6, height=0.5, width=0.5,
+           color=vec(0.5, 0.6, 0.8))
+ 
+arrow(pos=vec(-5, -3, 0), axis=vec(0.7, 0, 0), color=color.red,   shaftwidth=0.05)
+arrow(pos=vec(-5, -3, 0), axis=vec(0, 0.7, 0), color=color.green, shaftwidth=0.05)
+arrow(pos=vec(-5, -3, 0), axis=vec(0, 0, 0.7), color=color.blue,  shaftwidth=0.05)
+label(pos=vec(-4.2, -3, 0), text="X", color=color.red, box=False)
+label(pos=vec(-5, -2.2, 0), text="Y", color=color.green, box=False)
+label(pos=vec(-5, -3, 1),  text="Z", color=color.blue, box=False)
+ 
+label(pos=vec(-3.25, -1.4, 0), text="Fixed end", color=color.black, box=False)
+label(pos=vec(3,-1.4, 0), text="Free end",  color=color.black, box=False)
+ 
+scene.append_to_caption("\nClick the beam to place a 50 kN downward force arrow.\n")
+ 
+num_forces = 0
+ 
+def place_force(evt):
+    global num_forces
+    clicked = scene.mouse.pick
+    if clicked is beam:
 
-hatch1 = cylinder(pos=vec(-3.15, -0.8, 1.05), axis=vec(0, 1.6, 0), radius=0.03, color=color.black)
-hatch2 = cylinder(pos=vec(-3.15, -0.8, 0.35), axis=vec(0, 1.6, 0), radius=0.03, color=color.black)
-hatch3 = cylinder(pos=vec(-3.15, -0.8, -0.35), axis=vec(0, 1.6, 0), radius=0.03, color=color.black)
-hatch4 = cylinder(pos=vec(-3.15, -0.8, -1.05), axis=vec(0, 1.6, 0), radius=0.03, color=color.black)
-
-seg1 = box(pos=vec(-2, 0, 0), length=2, height=0.5, width=0.5, color=vec(0.3, 0.5, 1.0))
-seg2 = box(pos=vec(0, 0, 0),  length=2, height=0.5, width=0.5, color=vec(0.6, 0.8, 0.4))
-seg3 = box(pos=vec(2, 0, 0),  length=2, height=0.5, width=0.5, color=vec(1.0, 0.4, 0.2))
-
-wall = box(pos=vec(-3.35, 0, 0), length=0.4, height=2, width=2,
-           color=vec(0.5, 0.5, 0.55), opacity=0.8)
-
-force_arrow = arrow(pos=vec(3, 2, 0), axis=vec(0, -1.5, 0),
-                    color=color.red, shaftwidth=0.12,
-                    headwidth=0.28, headlength=0.2)
-
-x_axis = arrow(pos=vec(-4.5, -2.5, 0), axis=vec(0.6, 0, 0), color=color.red,   shaftwidth=0.04)
-y_axis = arrow(pos=vec(-4.5, -2.5, 0), axis=vec(0, 0.6, 0), color=color.green, shaftwidth=0.04)
-z_axis = arrow(pos=vec(-4.5, -2.5, 0), axis=vec(0, 0, 0.6), color=color.blue,  shaftwidth=0.04)
-label(pos=vec(-3.8, -2.5, 0), text="X", color=color.red,   box=False, height=14)
-label(pos=vec(-4.5, -1.8, 0), text="Y", color=color.green, box=False, height=14)
-label(pos=vec(-4.5, -2.5, 0.8), text="Z", color=color.blue, box=False, height=14)
-
-label(pos=vec(3, 3, 0), text="F = 50 kN", color=color.red, box=False, height=16)
-label(pos=vec(-3.35, -1.5, 0), text="Fixed end", color=color.black, box=False)
-label(pos=vec(3, -0.9, 0), text="Free end", color=color.black, box=False)
+        p = scene.mouse.project(normal=vec(0,1,0), point=vec(0, 0.25, 0))
+        if p is None:
+            return
+        
+        fx = max(-2.9, min(2.9, p.x))
+        fz = max(-0.2, min(0.2, p.z))
+        num_forces = num_forces + 1
+        arrow(pos=vec(fx, 2.5, fz), axis=vec(0, -2, 0),
+              color=color.red, shaftwidth=0.1,
+              headwidth=0.25, headlength=0.18)
+        label(pos=vec(fx, 3.1, fz), text="50 kN",
+              color=color.red, box=False, height=13)
+ 
+scene.bind("click", place_force)

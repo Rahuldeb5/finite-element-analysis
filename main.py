@@ -36,9 +36,11 @@ label(pos=vec(3,-1.4, 0), text="Free end",  color=color.black, box=False)
  
 scene.append_to_caption("\nClick the beam to place a 50 kN downward force arrow.\n")
  
-force_arrows = []
-force_labels = []
-
+placed_arrows = []
+placed_labels = []
+net_force_y = 0
+num_forces = 0
+ 
 def get_direction():
     d = dir_menu.selected
     if d == "Down":
@@ -65,14 +67,28 @@ def update_readout(s):
 def on_dir(m):
     pass
  
+def clear_forces(b):
+    global net_force_y, num_forces
+    for a in placed_arrows:
+        a.visible = False
+    for lbl in placed_labels:
+        lbl.visible = False
+    placed_arrows.clear()
+    placed_labels.clear()
+    net_force_y = 0
+    num_forces = 0
+    count_text.text = "0"
+    net_text.text = "0 kN"
+ 
 def place_force(evt):
+    global net_force_y, num_forces
     clicked = scene.mouse.pick
     if clicked is beam:
 
         p = scene.mouse.project(normal=vec(0,1,0), point=vec(0, 0.25, 0))
         if p is None:
             return
-        
+
         fx = max(-2.9, min(2.9, p.x))
         fz = max(-0.2, min(0.2, p.z))
         mag = force_slider.value
@@ -92,8 +108,12 @@ def place_force(evt):
         lbl = label(pos=start + direction * (-0.5),
                     text=str(int(mag)) + " kN",
                     color=col, box=False, height=13)
-        force_arrows.append(a)
-        force_labels.append(lbl)
+        placed_arrows.append(a)
+        placed_labels.append(lbl)
+        net_force_y = net_force_y + direction.y * mag
+        num_forces = num_forces + 1
+        count_text.text = str(num_forces)
+        net_text.text = str(round(net_force_y, 1)) + " kN"
  
 scene.append_to_caption("\n  Force magnitude (kN): ")
 force_readout = wtext(text="50")
@@ -101,6 +121,12 @@ scene.append_to_caption(" kN\n  ")
 force_slider = slider(min=10, max=200, value=50, length=250, bind=update_readout)
 scene.append_to_caption("\n\n  Direction:  ")
 dir_menu = menu(choices=["Down", "Up", "Left", "Right"], bind=on_dir)
+scene.append_to_caption("\n\n  ")
+clear_btn = button(text="Clear all forces", bind=clear_forces)
+scene.append_to_caption("\n\n  Forces placed: ")
+count_text = wtext(text="0")
+scene.append_to_caption("\n  Net Y force: ")
+net_text = wtext(text="0 kN")
 scene.append_to_caption("\n\n  Click the beam to place an arrow.\n")
  
 scene.bind("click", place_force)

@@ -1,16 +1,15 @@
 # Web VPython 3.2
 from vpython import *
 
-forces = list()
+# forces = list()
 
-def add_force(x, y, z, theta):
-    forces.append({
-        "x": x,
-        "y": y,
-        "z": z,
-        "angle": theta
-    })
-
+# def add_force(x, y, z, theta):
+#     forces.append({
+#         "x": x,
+#         "y": y,
+#         "z": z,
+#         "angle": theta
+#     })
 
 scene.background = color.white
 scene.width = 900
@@ -37,10 +36,36 @@ label(pos=vec(3,-1.4, 0), text="Free end",  color=color.black, box=False)
  
 scene.append_to_caption("\nClick the beam to place a 50 kN downward force arrow.\n")
  
-num_forces = 0
+force_arrows = []
+force_labels = []
+
+def get_direction():
+    d = dir_menu.selected
+    if d == "Down":
+        return vec(0, -1, 0)
+    if d == "Up":
+        return vec(0, 1, 0)
+    if d == "Left":
+        return vec(-1, 0, 0)
+    return vec(1, 0, 0)
+ 
+def get_arrow_color():
+    d = dir_menu.selected
+    if d == "Down":
+        return color.red
+    if d == "Up":
+        return color.orange
+    if d == "Left":
+        return color.purple
+    return color.magenta
+ 
+def update_readout(s):
+    force_readout.text = str(int(s.value))
+ 
+def on_dir(m):
+    pass
  
 def place_force(evt):
-    global num_forces
     clicked = scene.mouse.pick
     if clicked is beam:
 
@@ -50,11 +75,32 @@ def place_force(evt):
         
         fx = max(-2.9, min(2.9, p.x))
         fz = max(-0.2, min(0.2, p.z))
-        num_forces = num_forces + 1
-        arrow(pos=vec(fx, 2.5, fz), axis=vec(0, -2, 0),
-              color=color.red, shaftwidth=0.1,
-              headwidth=0.25, headlength=0.18)
-        label(pos=vec(fx, 3.1, fz), text="50 kN",
-              color=color.red, box=False, height=13)
+        mag = force_slider.value
+        direction = get_direction()
+        col = get_arrow_color()
+        if direction.y < 0:
+            start = vec(fx, 2.5, fz)
+        elif direction.y > 0:
+            start = vec(fx, -2.5, fz)
+        elif direction.x < 0:
+            start = vec(4, 0, fz)
+        else:
+            start = vec(-4, 0, fz)
+        a = arrow(pos=start, axis=direction * 2,
+                  color=col, shaftwidth=0.1,
+                  headwidth=0.25, headlength=0.18)
+        lbl = label(pos=start + direction * (-0.5),
+                    text=str(int(mag)) + " kN",
+                    color=col, box=False, height=13)
+        force_arrows.append(a)
+        force_labels.append(lbl)
+ 
+scene.append_to_caption("\n  Force magnitude (kN): ")
+force_readout = wtext(text="50")
+scene.append_to_caption(" kN\n  ")
+force_slider = slider(min=10, max=200, value=50, length=250, bind=update_readout)
+scene.append_to_caption("\n\n  Direction:  ")
+dir_menu = menu(choices=["Down", "Up", "Left", "Right"], bind=on_dir)
+scene.append_to_caption("\n\n  Click the beam to place an arrow.\n")
  
 scene.bind("click", place_force)

@@ -1,4 +1,4 @@
-# Web VPython 3.2
+#Web VPython 3.2
 from vpython import *
 
 # forces = list()
@@ -11,28 +11,38 @@ from vpython import *
 #         "angle": theta
 #     })
 
-scene.background = color.white
+scene2d = canvas(title = "Material Properties", width = 300, height = 600, 
+                 align = "left", background = color.white)
+scene2d.center = vec(750, 0, 0)
+scene2d.camera.pos = vec(750, 0, 0)
+scene2d.camera.axis = vec(750, 0, 0)
+
+scene.title = "Finite Element Analysis"
 scene.width = 900
 scene.height = 600
-scene.camera.pos = vec(0, 5, 14)
-scene.camera.axis = vec(0, -0.35, -1)
-scene.title = "Click on the beam to add a force arrow"
+scene.align = "left"
+scene.background = color.white
+scene.center = vec(0, 0, 0)
+scene.camera.pos = vec(0, 0, 10)
+scene.camera.axis = vec(0, 0, -10)
+
+border = shapes.rectangle(canvas = scene2d, width = 298, height = 598)
  
-wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=2, width=2,
-           color=vec(0.5, 0.5, 0.55))
+wall = box(canvas = scene, pos = vec(-3.25, 0, 0), length = 0.5, height = 2, width = 2, 
+           color = vec(0.5, 0.5, 0.55))
+           
+beam = box(canvas = scene, pos = vec(0, 0, 0), length = 6, height = 0.5, width = 0.5, 
+           color = vec(0.5, 0.6, 0.8))
  
-beam = box(pos=vec(0, 0, 0), length=6, height=0.5, width=0.5,
-           color=vec(0.5, 0.6, 0.8))
- 
-arrow(pos=vec(-5, -3, 0), axis=vec(0.7, 0, 0), color=color.red,   shaftwidth=0.05)
-arrow(pos=vec(-5, -3, 0), axis=vec(0, 0.7, 0), color=color.green, shaftwidth=0.05)
-arrow(pos=vec(-5, -3, 0), axis=vec(0, 0, 0.7), color=color.blue,  shaftwidth=0.05)
-label(pos=vec(-4.2, -3, 0), text="X", color=color.red, box=False)
-label(pos=vec(-5, -2.2, 0), text="Y", color=color.green, box=False)
-label(pos=vec(-5, -3, 1),  text="Z", color=color.blue, box=False)
- 
-label(pos=vec(-3.25, -1.4, 0), text="Fixed end", color=color.black, box=False)
-label(pos=vec(3,-1.4, 0), text="Free end",  color=color.black, box=False)
+arrow(canvas = scene, pos=vec(-5, -3, 0), axis=vec(0.7, 0, 0), color=color.red,   shaftwidth=0.05)
+arrow(canvas = scene, pos=vec(-5, -3, 0), axis=vec(0, 0.7, 0), color=color.green, shaftwidth=0.05)
+arrow(canvas = scene, pos=vec(-5, -3, 0), axis=vec(0, 0, 0.7), color=color.blue,  shaftwidth=0.05)
+
+label(canvas = scene, pos=vec(-4.2, -3, 0), text="X", color=color.red, box=False)
+label(canvas = scene, pos=vec(-5, -2.2, 0), text="Y", color=color.green, box=False)
+label(canvas = scene, pos=vec(-5, -3, 1),  text="Z", color=color.blue, box=False)
+label(canvas = scene, pos=vec(-3.25, -1.4, 0), text="Fixed end", color=color.black, box=False)
+label(canvas = scene, pos=vec(3,-1.4, 0), text="Free end",  color=color.black, box=False)
  
 # scene.append_to_caption("\nClick the beam to place a 50 kN downward force arrow.\n")
 
@@ -41,7 +51,7 @@ SEG_LEN = 6.0 / NUM_SEG
 beam_segs = []
 for i in range(NUM_SEG):
     x_cen = -3 + (i + 0.5) * SEG_LEN
-    s = box(pos=vec(x_cen, 0, 0), length=SEG_LEN * 0.97,
+    s = box(canvas = scene, pos=vec(x_cen, 0, 0), length=SEG_LEN * 0.97,
             height=0.5, width=0.5, color=vec(0.5, 0.6, 0.8))
     beam_segs.append(s)
 
@@ -125,7 +135,7 @@ def place_force(evt):
     clicked = scene.mouse.pick
     if clicked is beam:
 
-        p = scene.mouse.project(normal=vec(0,1,0), point=vec(0, 0.25, 0))
+        p = scene.mouse.project(canvas = scene, normal=vec(0,1,0), point=vec(0, 0.25, 0))
         if p is None:
             return
 
@@ -142,10 +152,10 @@ def place_force(evt):
             start = vec(4, 0, fz)
         else:
             start = vec(-4, 0, fz)
-        a = arrow(pos=start, axis=direction * 2,
+        a = arrow(canvas = scene, pos=start, axis=direction * 2,
                   color=col, shaftwidth=0.1,
                   headwidth=0.25, headlength=0.18)
-        lbl = label(pos=start + direction * (-0.5),
+        lbl = label(canvas = scene, pos=start + direction * (-0.5),
                     text=str(int(mag)) + " kN",
                     color=col, box=False, height=13)
         placed_arrows.append(a)
@@ -155,22 +165,22 @@ def place_force(evt):
         count_text.text = str(num_forces)
         net_text.text = str(round(net_force_y, 1)) + " kN"
  
-scene.append_to_caption("\n  Force magnitude (kN): ")
+scene2d.append_to_caption("\n  Force magnitude (kN): ")
 force_readout = wtext(text="50")
-scene.append_to_caption(" kN\n  ")
+scene2d.append_to_caption(" kN\n  ")
 force_slider = slider(min=10, max=200, value=50, length=250, bind=update_readout)
-scene.append_to_caption("\n\n  Direction:  ")
+scene2d.append_to_caption("\n\n  Direction:  ")
 dir_menu = menu(choices=["Down", "Up", "Left", "Right"], bind=on_dir)
-scene.append_to_caption("\n\n  ")
+scene2d.append_to_caption("\n\n  ")
 clear_btn = button(text="Clear all forces", bind=clear_forces)
-scene.append_to_caption("    ")
+scene2d.append_to_caption("    ")
 deflect_btn = button(text="Show deflection", bind=show_deflection)
-scene.append_to_caption("\n\n  Forces placed: ")
+scene2d.append_to_caption("\n\n  Forces placed: ")
 count_text = wtext(text="0")
-scene.append_to_caption("\n  Net Y force: ")
+scene2d.append_to_caption("\n  Net Y force: ")
 net_text = wtext(text="0 kN")
-scene.append_to_caption("\n  Tip deflection: ")
+scene2d.append_to_caption("\n  Tip deflection: ")
 deflect_text = wtext(text="0.00 mm")
-scene.append_to_caption("\n\n  Click the beam to place an arrow.\n")
+scene2d.append_to_caption("\n\n  Click the beam to place an arrow.\n")
  
-scene.bind("click", place_force)
+scene2d.bind("click", place_force)

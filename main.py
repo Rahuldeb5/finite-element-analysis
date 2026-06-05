@@ -21,7 +21,6 @@ loads = []
 scene.background = color.white
 scene.width  = 950
 scene.height = 540
-scene.title  = "FEA Beam"
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))
@@ -52,7 +51,7 @@ label(pos=vec(-4.3,-2.5,0), text="X", color=color.red,   box=False)
 label(pos=vec(-5,-1.9,0),   text="Y", color=color.green, box=False)
 label(pos=vec(-5,-2.5,0.8), text="Z", color=color.blue,  box=False)
 label(pos=vec(-3.25,-1.0,0), text="Fixed", color=color.black, box=False)
-label(pos=vec(3,-1.0,0),     text="Free",  color=color.black, box=False)
+free_label = label(pos=vec(3,-1.0,0), text="Free", color=color.black, box=False)
 
 legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
 for k in range(11):
@@ -82,7 +81,7 @@ def tc_color(r):
 def moment_at(x):
     M = 0.0
     for ld in loads:
-        a  = ld[0]
+        a = ld[0]
         Fy = ld[1]
         if x < a:
             M = M + Fy * (a - x)
@@ -91,7 +90,7 @@ def moment_at(x):
 def deflect_at(x):
     v = 0.0
     for ld in loads:
-        a  = ld[0]
+        a = ld[0]
         Fy = ld[1]
         if x <= a:
             v = v + Fy * (x*x) * (3*a - x) / (6*E*I_beam)
@@ -113,21 +112,21 @@ def compute():
     if norm == 0:
         norm = 1
     for i in range(NX + 1):
-        x    = (i / NX) * L
-        M    = moment_at(x)
-        v    = deflect_at(x)
+        x = (i / NX) * L
+        M = moment_at(x)
+        v = deflect_at(x)
         xpos = -3 + x
         for j in range(NY + 1):
             y_fiber = -BH/2 + (j / NY) * BH
-            sigma   = M * y_fiber / I_beam
+            sigma = M * y_fiber / I_beam
             if show_tc:
                 verts[i][j].color = tc_color((-M * y_fiber / I_beam) / norm)
             else:
                 verts[i][j].color = stress_color(abs(sigma) / norm)
             verts[i][j].pos = vec(xpos, y_fiber + v*SCALE, verts[i][j].pos.z)
     tip_v = deflect_at(L)
-    eps   = peak / E
-    pct   = peak / YIELD * 100
+    eps = peak / E
+    pct = peak / YIELD * 100
     stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)"
     deflect_text.text = str(round(tip_v*1000, 3)) + " mm"
     strain_text.text  = str(round(eps*1e6, 1)) + " micro-strain"
@@ -147,6 +146,36 @@ def update_graphs():
         v = deflect_at(x)
         stress_curve.plot(x,  M * (BH/2) / I_beam / 1e6)
         deflect_curve.plot(x, v * 1000)
+
+def update_geometry():
+    global I_beam, is_loaded
+    I_beam = BW * BH**3 / 12.0
+    for i in range(NX + 1):
+        xpos = -3 + (i / NX) * L
+        for j in range(NY + 1):
+            y_fiber = -BH/2 + (j / NY) * BH
+            verts[i][j].pos = vec(xpos, y_fiber, BW/2)
+            verts[i][j].color = vec(0,0,1)
+    wall.height = max(1.2, BH * 4)
+    wall.width  = max(1.0, BW * 4)
+    click_target.length = L + 1.0
+    click_target.height = BH + 1.5
+    click_target.pos    = vec(-3 + L/2, 0, BW/2)
+    free_label.pos = vec(-3 + L, -BH - 0.5, 0)
+    for a in placed_arrows: a.visible = False
+    for lb in placed_labels: lb.visible = False
+    placed_arrows.clear()
+    placed_labels.clear()
+    loads.clear()
+    is_loaded = False
+    stress_text.text  = "0 MPa"
+    deflect_text.text = "0 mm"
+    strain_text.text  = "0 micro-strain"
+    count_text.text   = "0"
+    legend_hi.text    = "max"
+    I_text.text       = str(round(I_beam * 1e6, 2)) + " x10-6 m^4"
+    stress_curve.delete()
+    deflect_curve.delete()
 
 def reset_all():
     global is_loaded
@@ -181,7 +210,7 @@ def place_force(evt):
     p = scene.mouse.project(normal=vec(0,0,1), point=vec(0,0,BW/2))
     if p is None:
         return
-    fx    = max(-3.0, min(-3.0+L, p.x))
+    fx    = max(-3.0, min(-3.0 + L, p.x))
     a_pos = fx + 3
     mag = force_slider.value
     ang = angle_slider.value
@@ -227,10 +256,46 @@ def on_tc(c):
     if is_loaded:
         compute()
 
+def on_L(s):
+    global L
+    L = s.value
+    L_readout.text = str(round(L,1)) + " m"
+    update_geometry()
+
+def on_BH(s):
+    global BH
+    BH = s.value
+    BH_readout.text = str(round(BH,2)) + " m"
+    update_geometry()
+
+def on_BW(s):
+    global BW
+    BW = s.value
+    BW_readout.text = str(round(BW,2)) + " m"
+    update_geometry()
+
 scene.append_to_caption("\n  Material: ")
 mat_menu = menu(choices=mat_names, bind=on_mat)
-scene.append_to_caption("  E = ")
+scene.append_to_caption("    E = ")
 matE_text = wtext(text="200.0 GPa")
+
+scene.append_to_caption("\n\n  Beam length L: ")
+L_readout = wtext(text="6.0 m")
+scene.append_to_caption("\n  ")
+L_slider = slider(min=2, max=12, value=6, length=280, bind=on_L)
+
+scene.append_to_caption("\n\n  Beam height h: ")
+BH_readout = wtext(text="0.30 m")
+scene.append_to_caption("\n  ")
+BH_slider = slider(min=0.1, max=0.8, value=0.3, length=280, bind=on_BH)
+
+scene.append_to_caption("\n\n  Beam width b: ")
+BW_readout = wtext(text="0.20 m")
+scene.append_to_caption("\n  ")
+BW_slider = slider(min=0.1, max=0.5, value=0.2, length=280, bind=on_BW)
+
+scene.append_to_caption("\n  I = ")
+I_text = wtext(text=str(round(I_beam*1e6,2)) + " x10-6 m^4")
 
 scene.append_to_caption("\n\n  Force magnitude: ")
 force_readout = wtext(text="50 kN")
@@ -249,6 +314,7 @@ checkbox(text="Show tension / compression", bind=on_tc)
 
 scene.append_to_caption("\n\n  Forces placed: ")
 count_text = wtext(text="0")
+
 scene.append_to_caption("\n\n  Max bending stress: ")
 stress_text = wtext(text="0 MPa")
 scene.append_to_caption("\n  Tip deflection: ")

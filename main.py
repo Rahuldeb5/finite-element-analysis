@@ -4,11 +4,15 @@ mat_names = ["Steel", "Aluminum", "Rubber"]
 mat_E = [200e9, 69e9, 5e9]
 mat_yield = [250e6, 95e6, 15e6]
 
+shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
+shape_BH    = [0.3,  0.3,  0.5]
+shape_BW    = [0.1,  0.3,  0.1]
+
 NX = 40
 NY = 8
 L  = 6.0
 BH = 0.3
-BW = 0.2
+BW = 0.1
 I_beam = BW * BH**3 / 12.0
 E = mat_E[0]
 YIELD = mat_yield[0]
@@ -154,14 +158,14 @@ def update_geometry():
         xpos = -3 + (i / NX) * L
         for j in range(NY + 1):
             y_fiber = -BH/2 + (j / NY) * BH
-            verts[i][j].pos = vec(xpos, y_fiber, BW/2)
+            verts[i][j].pos   = vec(xpos, y_fiber, BW/2)
             verts[i][j].color = vec(0,0,1)
-    wall.height = max(1.2, BH * 4)
-    wall.width  = max(1.0, BW * 4)
+    wall.height         = max(1.2, BH * 4)
+    wall.width          = max(1.0, BW * 4)
     click_target.length = L + 1.0
     click_target.height = BH + 1.5
     click_target.pos    = vec(-3 + L/2, 0, BW/2)
-    free_label.pos = vec(-3 + L, -BH - 0.5, 0)
+    free_label.pos      = vec(-3 + L, -BH - 0.5, 0)
     for a in placed_arrows: a.visible = False
     for lb in placed_labels: lb.visible = False
     placed_arrows.clear()
@@ -173,7 +177,7 @@ def update_geometry():
     strain_text.text  = "0 micro-strain"
     count_text.text   = "0"
     legend_hi.text    = "max"
-    I_text.text       = str(round(I_beam * 1e6, 2)) + " x10-6 m^4"
+    I_text.text       = str(round(I_beam * 1e6, 3)) + " x10-6 m^4"
     stress_curve.delete()
     deflect_curve.delete()
 
@@ -231,6 +235,17 @@ def place_force(evt):
     count_text.text = str(len(loads))
     compute()
 
+def on_shape(m):
+    global BH, BW
+    idx = shape_names.index(m.selected)
+    BH = shape_BH[idx]
+    BW = shape_BW[idx]
+    BH_readout.text = str(round(BH,2)) + " m"
+    BW_readout.text = str(round(BW,2)) + " m"
+    BH_slider.value = BH
+    BW_slider.value = BW
+    update_geometry()
+
 def on_mat(m):
     global E, YIELD
     idx   = mat_names.index(m.selected)
@@ -274,7 +289,9 @@ def on_BW(s):
     BW_readout.text = str(round(BW,2)) + " m"
     update_geometry()
 
-scene.append_to_caption("\n  Material: ")
+scene.append_to_caption("\n  Shape preset: ")
+shape_menu = menu(choices=shape_names, bind=on_shape)
+scene.append_to_caption("    Material: ")
 mat_menu = menu(choices=mat_names, bind=on_mat)
 scene.append_to_caption("    E = ")
 matE_text = wtext(text="200.0 GPa")
@@ -284,18 +301,18 @@ L_readout = wtext(text="6.0 m")
 scene.append_to_caption("\n  ")
 L_slider = slider(min=2, max=12, value=6, length=280, bind=on_L)
 
-scene.append_to_caption("\n\n  Beam height h: ")
+scene.append_to_caption("\n\n  Height h: ")
 BH_readout = wtext(text="0.30 m")
 scene.append_to_caption("\n  ")
 BH_slider = slider(min=0.1, max=0.8, value=0.3, length=280, bind=on_BH)
 
-scene.append_to_caption("\n\n  Beam width b: ")
-BW_readout = wtext(text="0.20 m")
+scene.append_to_caption("\n\n  Width b: ")
+BW_readout = wtext(text="0.10 m")
 scene.append_to_caption("\n  ")
-BW_slider = slider(min=0.1, max=0.5, value=0.2, length=280, bind=on_BW)
+BW_slider = slider(min=0.05, max=0.5, value=0.1, length=280, bind=on_BW)
 
 scene.append_to_caption("\n  I = ")
-I_text = wtext(text=str(round(I_beam*1e6,2)) + " x10-6 m^4")
+I_text = wtext(text=str(round(I_beam*1e6,3)) + " x10-6 m^4")
 
 scene.append_to_caption("\n\n  Force magnitude: ")
 force_readout = wtext(text="50 kN")

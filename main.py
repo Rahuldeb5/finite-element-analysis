@@ -35,6 +35,15 @@ scene.camera.axis = vec(0, 0, -10)
 border = shapes.rectangle(canvas = scene2d, pos = vec(0, 0, 0), width = 300, height = 600
                           )
 
+x = 50
+y = 50
+z = 5
+
+for i in range (x):
+    for j in range (y):
+        box(canvas = scene, pos =  vec(i, j, 0), length = 1, width = 1, height = z,
+            color = color.red)
+
 #wall = box(canvas = scene, pos = vec(-3.25, 0, 0), length = 0.5, height = 2, width = 2, 
 #           color = vec(0.5, 0.5, 0.55))
            

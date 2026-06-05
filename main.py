@@ -11,11 +11,17 @@ from vpython import *
 #         "angle": theta
 #     })
 
+scene2d2 = canvas(title = "Sidebar", width = 100, height = 600, 
+                 align = "left")
+scene2d2.center = vec(0, 0, 0)
+scene2d2.camera.pos = vec(0, 0, 0)
+scene2d2.camera.axis = vec(0, 0, 0)
+
 scene2d = canvas(title = "Material Properties", width = 300, height = 600, 
                  align = "left", background = color.white)
-scene2d.center = vec(750, 0, 0)
-scene2d.camera.pos = vec(750, 0, 0)
-scene2d.camera.axis = vec(750, 0, 0)
+scene2d.center = vec(0, 0, 0)
+scene2d.camera.pos = vec(0, 0, 0)
+scene2d.camera.axis = vec(0, 0, 0)
 
 scene.title = "Finite Element Analysis"
 scene.width = 900

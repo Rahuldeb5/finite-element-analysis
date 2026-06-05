@@ -1,4 +1,4 @@
-#Web VPython 3.2
+Web VPython 3.2
 from vpython import *
 
 # forces = list()

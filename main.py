@@ -32,13 +32,14 @@ scene.center = vec(0, 0, 0)
 scene.camera.pos = vec(0, 0, 10)
 scene.camera.axis = vec(0, 0, -10)
 
-border = shapes.rectangle(canvas = scene2d, width = 298, height = 598)
- 
-wall = box(canvas = scene, pos = vec(-3.25, 0, 0), length = 0.5, height = 2, width = 2, 
-           color = vec(0.5, 0.5, 0.55))
+border = shapes.rectangle(canvas = scene2d, pos = vec(0, 0, 0), width = 300, height = 600
+                          )
+
+#wall = box(canvas = scene, pos = vec(-3.25, 0, 0), length = 0.5, height = 2, width = 2, 
+#           color = vec(0.5, 0.5, 0.55))
            
-beam = box(canvas = scene, pos = vec(0, 0, 0), length = 6, height = 0.5, width = 0.5, 
-           color = vec(0.5, 0.6, 0.8))
+#beam = box(canvas = scene, pos = vec(0, 0, 0), length = 6, height = 0.5, width = 0.5, 
+#           color = vec(0.5, 0.6, 0.8))
  
 arrow(canvas = scene, pos=vec(-5, -3, 0), axis=vec(0.7, 0, 0), color=color.red,   shaftwidth=0.05)
 arrow(canvas = scene, pos=vec(-5, -3, 0), axis=vec(0, 0.7, 0), color=color.green, shaftwidth=0.05)

@@ -1,12 +1,12 @@
 Web VPython 3.2
 
-mat_names = ["Steel", "Aluminum", "Rubber"]
-mat_E = [200e9, 69e9, 5e9]
-mat_yield = [250e6, 95e6, 15e6]
-
+mat_names   = ["Steel", "Aluminum", "Rubber"]
+mat_E       = [200e9, 69e9, 5e9]
+mat_yield   = [250e6, 95e6, 15e6]
 shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
-shape_BH    = [0.3,  0.3,  0.5]
-shape_BW    = [0.1,  0.3,  0.1]
+shape_BH    = [0.3, 0.3, 0.5]
+shape_BW    = [0.1, 0.3, 0.1]
+bc_names    = ["Cantilever", "Simply Supported"]
 
 NX = 40
 NY = 8
@@ -16,6 +16,7 @@ BW = 0.1
 I_beam = BW * BH**3 / 12.0
 E = mat_E[0]
 YIELD = mat_yield[0]
+BC = "Cantilever"
 is_loaded = False
 show_tc = False
 placed_arrows = []
@@ -28,7 +29,11 @@ scene.height = 540
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))
-click_target = box(pos=vec(0, 0, BW/2), length=L+1.0, height=BH+1.5, width=0.02,
+left_support  = box(pos=vec(-3, 0, 0), length=0.2, height=0.4, width=max(0.6, BW*4),
+                    color=vec(0.45,0.45,0.5), visible=False)
+right_support = box(pos=vec(3,  0, 0), length=0.2, height=0.4, width=max(0.6, BW*4),
+                    color=vec(0.45,0.45,0.5), visible=False)
+click_target = box(pos=vec(0, 0, 0), length=L+1.0, height=BH+1.5, width=0.02,
                    opacity=0.0, color=vec(0.5,0.6,0.8))
 
 verts = []
@@ -85,21 +90,35 @@ def tc_color(r):
 def moment_at(x):
     M = 0.0
     for ld in loads:
-        a = ld[0]
+        a  = ld[0]
         Fy = ld[1]
-        if x < a:
-            M = M + Fy * (a - x)
+        if BC == "Cantilever":
+            if x < a:
+                M = M + Fy * (a - x)
+        else:
+            b = L - a
+            if x <= a:
+                M = M + Fy * b * x / L
+            else:
+                M = M + Fy * a * (L - x) / L
     return M
 
 def deflect_at(x):
     v = 0.0
     for ld in loads:
-        a = ld[0]
+        a  = ld[0]
         Fy = ld[1]
-        if x <= a:
-            v = v + Fy * (x*x) * (3*a - x) / (6*E*I_beam)
+        if BC == "Cantilever":
+            if x <= a:
+                v = v + Fy * (x*x) * (3*a - x) / (6*E*I_beam)
+            else:
+                v = v + Fy * (a*a) * (3*x - a) / (6*E*I_beam)
         else:
-            v = v + Fy * (a*a) * (3*x - a) / (6*E*I_beam)
+            b = L - a
+            if x <= a:
+                v = v + Fy * b * x * (L*L - b*b - x*x) / (6*E*I_beam*L)
+            else:
+                v = v + Fy * a * (L-x) * (2*L*x - a*a - x*x) / (6*E*I_beam*L)
     return v
 
 def compute():
@@ -124,7 +143,8 @@ def compute():
             y_fiber = -BH/2 + (j / NY) * BH
             sigma = M * y_fiber / I_beam
             if show_tc:
-                verts[i][j].color = tc_color((-M * y_fiber / I_beam) / norm)
+                sign_flip = 1 if BC == "Simply Supported" else -1
+                verts[i][j].color = tc_color(sign_flip * M * y_fiber / I_beam / norm)
             else:
                 verts[i][j].color = stress_color(abs(sigma) / norm)
             verts[i][j].pos = vec(xpos, y_fiber + v*SCALE, verts[i][j].pos.z)
@@ -166,6 +186,18 @@ def update_geometry():
     click_target.height = BH + 1.5
     click_target.pos    = vec(-3 + L/2, 0, BW/2)
     free_label.pos      = vec(-3 + L, -BH - 0.5, 0)
+    right_support.pos   = vec(-3 + L + 0.08, -BH/2 - 0.3, 0)
+    right_support.height = BH + 0.6
+    right_support.width  = max(0.8, BW * 4)
+    wall.visible          = BC == "Cantilever"
+    left_support.visible  = BC != "Cantilever"
+    right_support.visible = BC != "Cantilever"
+    left_support.pos    = vec(-3, -BH/2, 0)
+    left_support.height = 0.4
+    left_support.width  = max(0.6, BW * 4)
+    right_support.pos   = vec(-3 + L, -BH/2, 0)
+    right_support.height = 0.4
+    right_support.width  = max(0.6, BW * 4)
     for a in placed_arrows: a.visible = False
     for lb in placed_labels: lb.visible = False
     placed_arrows.clear()
@@ -235,6 +267,21 @@ def place_force(evt):
     count_text.text = str(len(loads))
     compute()
 
+def on_bc(m):
+    global BC
+    BC = m.selected
+    if BC == "Cantilever":
+        wall.visible          = True
+        left_support.visible  = False
+        right_support.visible = False
+        free_label.text = "Free"
+    else:
+        wall.visible          = False
+        left_support.visible  = True
+        right_support.visible = True
+        free_label.text = "Support"
+    reset_all()
+
 def on_shape(m):
     global BH, BW
     idx = shape_names.index(m.selected)
@@ -289,29 +336,28 @@ def on_BW(s):
     BW_readout.text = str(round(BW,2)) + " m"
     update_geometry()
 
-scene.append_to_caption("\n  Shape preset: ")
+scene.append_to_caption("\n  Boundary: ")
+bc_menu = menu(choices=bc_names, index=0, bind=on_bc)
+scene.append_to_caption("    Shape: ")
 shape_menu = menu(choices=shape_names, bind=on_shape)
 scene.append_to_caption("    Material: ")
 mat_menu = menu(choices=mat_names, bind=on_mat)
-scene.append_to_caption("    E = ")
+scene.append_to_caption("  E = ")
 matE_text = wtext(text="200.0 GPa")
 
-scene.append_to_caption("\n\n  Beam length L: ")
+scene.append_to_caption("\n\n  L: ")
 L_readout = wtext(text="6.0 m")
-scene.append_to_caption("\n  ")
-L_slider = slider(min=2, max=12, value=6, length=280, bind=on_L)
-
-scene.append_to_caption("\n\n  Height h: ")
+scene.append_to_caption("  ")
+L_slider = slider(min=2, max=12, value=6, length=220, bind=on_L)
+scene.append_to_caption("    h: ")
 BH_readout = wtext(text="0.30 m")
-scene.append_to_caption("\n  ")
-BH_slider = slider(min=0.1, max=0.8, value=0.3, length=280, bind=on_BH)
-
-scene.append_to_caption("\n\n  Width b: ")
+scene.append_to_caption("  ")
+BH_slider = slider(min=0.1, max=0.8, value=0.3, length=180, bind=on_BH)
+scene.append_to_caption("    b: ")
 BW_readout = wtext(text="0.10 m")
-scene.append_to_caption("\n  ")
-BW_slider = slider(min=0.05, max=0.5, value=0.1, length=280, bind=on_BW)
-
-scene.append_to_caption("\n  I = ")
+scene.append_to_caption("  ")
+BW_slider = slider(min=0.05, max=0.5, value=0.1, length=180, bind=on_BW)
+scene.append_to_caption("   I = ")
 I_text = wtext(text=str(round(I_beam*1e6,3)) + " x10-6 m^4")
 
 scene.append_to_caption("\n\n  Force magnitude: ")
@@ -339,5 +385,9 @@ deflect_text = wtext(text="0 mm")
 scene.append_to_caption("\n  Max strain: ")
 strain_text = wtext(text="0 micro-strain")
 scene.append_to_caption("\n\n  Click beam to place force. Drag to rotate.\n")
+
+wall.visible = True
+left_support.visible = False
+right_support.visible = False
 
 scene.bind("click", place_force)

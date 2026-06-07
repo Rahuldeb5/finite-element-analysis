@@ -184,11 +184,8 @@ def update_geometry():
     wall.width          = max(1.0, BW * 4)
     click_target.length = L + 1.0
     click_target.height = BH + 1.5
-    click_target.pos    = vec(-3 + L/2, 0, BW/2)
+    click_target.pos    = vec(-3 + L/2, 0, 0)
     free_label.pos      = vec(-3 + L, -BH - 0.5, 0)
-    right_support.pos   = vec(-3 + L + 0.08, -BH/2 - 0.3, 0)
-    right_support.height = BH + 0.6
-    right_support.width  = max(0.8, BW * 4)
     wall.visible          = BC == "Cantilever"
     left_support.visible  = BC != "Cantilever"
     right_support.visible = BC != "Cantilever"
@@ -308,6 +305,20 @@ def on_force(s):
 def on_angle(s):
     angle_readout.text = str(int(s.value)) + " deg"
 
+def on_undo(b):
+    if len(loads) == 0:
+        return
+    loads.pop()
+    placed_arrows[-1].visible = False
+    placed_labels[-1].visible = False
+    placed_arrows.pop()
+    placed_labels.pop()
+    count_text.text = str(len(loads))
+    if len(loads) == 0:
+        reset_all()
+    else:
+        compute()
+
 def on_clear(b):
     reset_all()
 
@@ -372,6 +383,8 @@ angle_slider = slider(min=0, max=359, value=270, length=280, bind=on_angle)
 
 scene.append_to_caption("\n\n  ")
 button(text="Clear all", bind=on_clear)
+scene.append_to_caption("    ")
+button(text="Undo last", bind=on_undo)
 scene.append_to_caption("    ")
 checkbox(text="Show tension / compression", bind=on_tc)
 

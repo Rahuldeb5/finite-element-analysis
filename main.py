@@ -1,8 +1,8 @@
 Web VPython 3.2
 
-mat_names   = ["Steel", "Aluminum", "Rubber"]
-mat_E       = [200e9, 69e9, 5e9]
-mat_yield   = [250e6, 95e6, 15e6]
+mat_names   = ["Steel", "Aluminum"]
+mat_E       = [200e9, 69e9]
+mat_yield   = [250e6, 95e6]
 shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
 shape_BH    = [0.3, 0.3, 0.5]
 shape_BW    = [0.1, 0.3, 0.1]

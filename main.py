@@ -63,23 +63,6 @@ label(pos=vec(-5,-2.5,0.8), text="Z", color=color.blue,  box=False)
 label(pos=vec(-3.25,-1.0,0), text="Fixed", color=color.black, box=False)
 free_label = label(pos=vec(3,-1.0,0), text="Free", color=color.black, box=False)
 
-scene1 = canvas(title = "Legend", align = 'left', width = 500, height = 530, background = vec(0.5, 0.5, 0.5))
-scene1.camera.pos = vec(0, 0, 10)
-scene1.camera.axis = vec(0, 0, -1)
-scene1.userzoom = False
-scene1.userspin = False
-
-legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
-for k in range(11):
-    t = k/10.0
-    if t < 0.5:
-        lc = vec(t*2, t*2, 1)
-    else:
-        lc = vec(1, 2*(1-t), 0)
-    box(pos=vec(4.7, -1.2 + k*0.28, 0), length=0.35, height=0.24, width=0.05, color=lc)
-label(pos=vec(5.5,-1.2,0),         text="0",   color=color.black, box=False, height=11)
-legend_hi = label(pos=vec(5.6,-1.2+10*0.28,0), text="max", color=color.black, box=False, height=11)
-
 def stress_color(t):
     if t > 1: t = 1
     if t < 0: t = 0
@@ -417,3 +400,23 @@ left_support.visible = False
 right_support.visible = False
 
 scene.bind("click", place_force)
+
+scene1 = canvas(title = "Legend", align = 'left', width = 500, height = 530, background = vec(0.5, 0.5, 0.5))
+scene1.camera.pos = vec(0, 0, 10)
+scene1.camera.axis = vec(0, 0, -1)
+scene1.userzoom = False
+scene1.userspin = False
+
+legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
+for k in range(11):
+    t = k/10.0
+    if t < 0.5:
+        lc = vec(t*2, t*2, 1)
+    else:
+        lc = vec(1, 2*(1-t), 0)
+    box(pos=vec(4.7, -1.2 + k*0.28, 0), length=0.35, height=0.24, width=0.05, color=lc)
+label(pos=vec(5.5,-1.2,0),         text="0",   color=color.black, box=False, height=11)
+legend_hi = label(pos=vec(5.6,-1.2+10*0.28,0), text="max", color=color.black, box=False, height=11)
+
+stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
+deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)

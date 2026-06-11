@@ -165,8 +165,8 @@ def compute():
     update_graphs()
     is_loaded = True
 
-stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False), color=color.red)
-deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False), color=color.blue)
+stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
+deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)
 
 def update_graphs():
     stress_curve.delete()

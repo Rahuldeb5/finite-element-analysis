@@ -27,11 +27,6 @@ loads = []
 scene.background = color.white
 scene.width  = 950
 scene.height = 540
-scene1 = canvas(title = "Legend", align = 'left', width = 500, height = 530, background = vec(0.5, 0.5, 0.5))
-scene1.camera.pos = vec(0, 0, 10)
-scene1.camera.axis = vec(0, 0, -1)
-scene1.userzoom = False
-scene1.userspin = False
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))
@@ -67,6 +62,12 @@ label(pos=vec(-5,-1.9,0),   text="Y", color=color.green, box=False)
 label(pos=vec(-5,-2.5,0.8), text="Z", color=color.blue,  box=False)
 label(pos=vec(-3.25,-1.0,0), text="Fixed", color=color.black, box=False)
 free_label = label(pos=vec(3,-1.0,0), text="Free", color=color.black, box=False)
+
+scene1 = canvas(title = "Legend", align = 'left', width = 500, height = 530, background = vec(0.5, 0.5, 0.5))
+scene1.camera.pos = vec(0, 0, 10)
+scene1.camera.axis = vec(0, 0, -1)
+scene1.userzoom = False
+scene1.userspin = False
 
 legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
 for k in range(11):

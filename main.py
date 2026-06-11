@@ -1,9 +1,8 @@
 Web VPython 3.2
 
-mat_names   = ["Steel", "Aluminum", "Tungsten Carbide", "Diamond"]
-mat_E       = [200e9, 69e9, 620e9, 1150e9]
-mat_yield   = [250e6, 95e6, 500e6, 2800e6]
-
+mat_names   = ["Steel", "Aluminum"]
+mat_E       = [200e9, 69e9]
+mat_yield   = [250e6, 95e6]
 shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
 shape_BH    = [0.3, 0.3, 0.5]
 shape_BW    = [0.1, 0.3, 0.1]
@@ -141,15 +140,12 @@ def compute():
     tip_v = deflect_at(L)
     eps = peak / E
     pct = peak / YIELD * 100
-    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)" + (". BROKEN!!!!" if round(pct,0) >= 100 else "")
+    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)"
     deflect_text.text = str(round(tip_v*1000, 3)) + " mm"
     strain_text.text  = str(round(eps*1e6, 1)) + " micro-strain"
     legend_hi.text    = str(round(peak/1e6,1)) + " MPa"
     update_graphs()
     is_loaded = True
-
-stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
-deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)
 
 def update_graphs():
     stress_curve.delete()

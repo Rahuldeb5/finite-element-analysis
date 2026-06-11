@@ -354,6 +354,12 @@ def on_BW(s):
     BW_readout.text = str(round(BW,2)) + " m"
     update_geometry()
 
+scene2 = canvas(title = "Properties", align = 'left', width = 940, height = 250, background = vec(0.5, 0.5, 0.5))
+scene2.camera.pos = vec(0, 0, 10)
+scene2.camera.axis = vec(0, 0, -1)
+scene2.userzoom = False
+scene2.userspin = False
+
 scene.append_to_caption("\n  Boundary: ")
 bc_menu = menu(choices=bc_names, index=0, bind=on_bc)
 scene.append_to_caption("    Shape: ")

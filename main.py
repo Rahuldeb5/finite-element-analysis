@@ -27,6 +27,11 @@ loads = []
 scene.background = color.white
 scene.width  = 950
 scene.height = 540
+scene1 = canvas(title = "Legend", align = 'left', width = 500, height = 530, background = vec(0.5, 0.5, 0.5))
+scene1.camera.pos = vec(0, 0, 10)
+scene1.camera.axis = vec(0, 0, -1)
+scene1.userzoom = False
+scene1.userspin = False
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))

@@ -152,7 +152,7 @@ def compute():
     tip_v = deflect_at(L)
     eps = peak / E
     pct = peak / YIELD * 100
-    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)"
+    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)" + (". BROKEN!!!!" if round(pct,0) >= 100 else "")
     deflect_text.text = str(round(tip_v*1000, 3)) + " mm"
     strain_text.text  = str(round(eps*1e6, 1)) + " micro-strain"
     legend_hi.text    = str(round(peak/1e6,1)) + " MPa"

@@ -24,8 +24,9 @@ placed_labels = []
 loads = []
 
 scene.background = color.white
-scene.width  = 950
-scene.height = 540
+scene.width  = 900
+scene.height = 500
+scene.align = 'left'
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))
@@ -333,7 +334,24 @@ def on_BW(s):
     BW_readout.text = str(round(BW,2)) + " m"
     update_geometry()
 
-scene2 = canvas(title = "Properties", align = 'left', width = 940, height = 250, background = vec(0.5, 0.5, 0.5))
+scene1 = canvas(width = 100, height = 500, align = 'left', background = vec(0.5, 0.5, 0.5))
+scene1.camera.pos = vec(0, 0, 10)
+scene1.camera.axis = vec(0, 0, -1)
+scene1.userzoom = False
+scene1.userspin = False
+
+legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
+for k in range(11):
+    t = k/10.0
+    if t < 0.5:
+        lc = vec(t*2, t*2, 1)
+    else:
+        lc = vec(1, 2*(1-t), 0)
+    box(pos=vec(0, -3 + k*0.6, 0), length=1, height=0.5, width=0.05, color=lc)
+label(pos=vec(1,-3,0),         text="0",   color=color.black, box=False, height=11)
+legend_hi = label(pos=vec(1,-3+10*0.6,0), text="max", color=color.black, box=False, height=11)
+
+scene2 = canvas(width = 1000, height = 50, background = vec(0, 0, 0))
 scene2.camera.pos = vec(0, 0, 10)
 scene2.camera.axis = vec(0, 0, -1)
 scene2.userzoom = False
@@ -390,29 +408,13 @@ deflect_text = wtext(text="0 mm")
 scene2.append_to_caption("\n  Max strain: ")
 strain_text = wtext(text="0 micro-strain")
 scene2.append_to_caption("\n\n  Click beam to place force. Drag to rotate.\n")
+scene2.append_to_caption("\n\n \n")
 
 wall.visible = True
 left_support.visible = False
 right_support.visible = False
 
 scene.bind("click", place_force)
-
-scene1 = canvas(title = "Legend", align = 'left', width = 500, height = 530, background = vec(0.5, 0.5, 0.5))
-scene1.camera.pos = vec(0, 0, 10)
-scene1.camera.axis = vec(0, 0, -1)
-scene1.userzoom = False
-scene1.userspin = False
-
-legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
-for k in range(11):
-    t = k/10.0
-    if t < 0.5:
-        lc = vec(t*2, t*2, 1)
-    else:
-        lc = vec(1, 2*(1-t), 0)
-    box(pos=vec(4.7, -1.2 + k*0.28, 0), length=0.35, height=0.24, width=0.05, color=lc)
-label(pos=vec(5.5,-1.2,0),         text="0",   color=color.black, box=False, height=11)
-legend_hi = label(pos=vec(5.6,-1.2+10*0.28,0), text="max", color=color.black, box=False, height=11)
 
 stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
 deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)

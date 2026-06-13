@@ -1,14 +1,8 @@
 Web VPython 3.2
 
-<<<<<<< Updated upstream
-mat_names   = ["Steel", "Aluminum"]
-mat_E       = [200e9, 69e9]
-mat_yield   = [250e6, 95e6]
-=======
 mat_names   = ["Steel", "Aluminum", "Tungsten Carbide", "Diamond"]
 mat_E       = [200e9, 69e9, 620e9, 1150e9]
 mat_yield   = [250e6, 95e6, 500e6, 2800e6]
->>>>>>> Stashed changes
 shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
 shape_BH    = [0.3, 0.3, 0.5]
 shape_BW    = [0.1, 0.3, 0.1]
@@ -147,7 +141,7 @@ def compute():
     tip_v = deflect_at(L)
     eps = peak / E
     pct = peak / YIELD * 100
-    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)"
+    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)" + (". BROKEN!!!!" if round(pct,0) >= 100 else "")
     deflect_text.text = str(round(tip_v*1000, 3)) + " mm"
     strain_text.text  = str(round(eps*1e6, 1)) + " micro-strain"
     legend_hi.text    = str(round(peak/1e6,1)) + " MPa"
@@ -357,11 +351,7 @@ for k in range(11):
 label(pos=vec(1,-3,0),         text="0",   color=color.black, box=False, height=11)
 legend_hi = label(pos=vec(1,-3+10*0.6,0), text="max", color=color.black, box=False, height=11)
 
-<<<<<<< Updated upstream
-scene2 = canvas(width = 1000, height = 50, background = vec(0, 0, 0))
-=======
 scene2 = canvas(width = 1000, height = 50, background = color.white)
->>>>>>> Stashed changes
 scene2.camera.pos = vec(0, 0, 10)
 scene2.camera.axis = vec(0, 0, -1)
 scene2.userzoom = False
@@ -427,8 +417,4 @@ right_support.visible = False
 scene.bind("click", place_force)
 
 stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
-<<<<<<< Updated upstream
 deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)
-=======
-deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)
->>>>>>> Stashed changes

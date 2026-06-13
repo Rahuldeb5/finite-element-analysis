@@ -351,7 +351,7 @@ for k in range(11):
 label(pos=vec(1,-3,0),         text="0",   color=color.black, box=False, height=11)
 legend_hi = label(pos=vec(1,-3+10*0.6,0), text="max", color=color.black, box=False, height=11)
 
-scene2 = canvas(width = 1000, height = 50, background = color.white)
+scene2 = canvas(width = 1000, height = 50, background = vec(0.5, 0.5, 0.5))
 scene2.camera.pos = vec(0, 0, 10)
 scene2.camera.axis = vec(0, 0, -1)
 scene2.userzoom = False

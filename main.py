@@ -1,9 +1,8 @@
 Web VPython 3.2
 
-mat_names   = ["Steel", "Aluminum", "Tungsten Carbide", "Diamond"]
-mat_E       = [200e9, 69e9, 620e9, 1150e9]
-mat_yield   = [250e6, 95e6, 500e6, 2800e6]
-
+mat_names   = ["Steel", "Aluminum"]
+mat_E       = [200e9, 69e9]
+mat_yield   = [250e6, 95e6]
 shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
 shape_BH    = [0.3, 0.3, 0.5]
 shape_BW    = [0.1, 0.3, 0.1]
@@ -25,8 +24,9 @@ placed_labels = []
 loads = []
 
 scene.background = color.white
-scene.width  = 950
-scene.height = 540
+scene.width  = 900
+scene.height = 500
+scene.align = 'left'
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))
@@ -62,17 +62,6 @@ label(pos=vec(-5,-1.9,0),   text="Y", color=color.green, box=False)
 label(pos=vec(-5,-2.5,0.8), text="Z", color=color.blue,  box=False)
 label(pos=vec(-3.25,-1.0,0), text="Fixed", color=color.black, box=False)
 free_label = label(pos=vec(3,-1.0,0), text="Free", color=color.black, box=False)
-
-legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
-for k in range(11):
-    t = k/10.0
-    if t < 0.5:
-        lc = vec(t*2, t*2, 1)
-    else:
-        lc = vec(1, 2*(1-t), 0)
-    box(pos=vec(4.7, -1.2 + k*0.28, 0), length=0.35, height=0.24, width=0.05, color=lc)
-label(pos=vec(5.5,-1.2,0),         text="0",   color=color.black, box=False, height=11)
-legend_hi = label(pos=vec(5.6,-1.2+10*0.28,0), text="max", color=color.black, box=False, height=11)
 
 def stress_color(t):
     if t > 1: t = 1
@@ -152,15 +141,12 @@ def compute():
     tip_v = deflect_at(L)
     eps = peak / E
     pct = peak / YIELD * 100
-    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)" + (". BROKEN!!!!" if round(pct,0) >= 100 else "")
+    stress_text.text  = str(round(peak/1e6, 1)) + " MPa (" + str(round(pct,0)) + "% of yield)"
     deflect_text.text = str(round(tip_v*1000, 3)) + " mm"
     strain_text.text  = str(round(eps*1e6, 1)) + " micro-strain"
     legend_hi.text    = str(round(peak/1e6,1)) + " MPa"
     update_graphs()
     is_loaded = True
-
-stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False), color=color.red)
-deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False), color=color.blue)
 
 def update_graphs():
     stress_curve.delete()
@@ -348,60 +334,87 @@ def on_BW(s):
     BW_readout.text = str(round(BW,2)) + " m"
     update_geometry()
 
-scene.append_to_caption("\n  Boundary: ")
+scene1 = canvas(width = 100, height = 500, align = 'left', background = vec(0.5, 0.5, 0.5))
+scene1.camera.pos = vec(0, 0, 10)
+scene1.camera.axis = vec(0, 0, -1)
+scene1.userzoom = False
+scene1.userspin = False
+
+legend_title = label(pos=vec(5.4,-1.2+11*0.28,0), text="Stress", color=color.black, box=False, height=12)
+for k in range(11):
+    t = k/10.0
+    if t < 0.5:
+        lc = vec(t*2, t*2, 1)
+    else:
+        lc = vec(1, 2*(1-t), 0)
+    box(pos=vec(0, -3 + k*0.6, 0), length=1, height=0.5, width=0.05, color=lc)
+label(pos=vec(1,-3,0),         text="0",   color=color.black, box=False, height=11)
+legend_hi = label(pos=vec(1,-3+10*0.6,0), text="max", color=color.black, box=False, height=11)
+
+scene2 = canvas(width = 1000, height = 50, background = vec(0, 0, 0))
+scene2.camera.pos = vec(0, 0, 10)
+scene2.camera.axis = vec(0, 0, -1)
+scene2.userzoom = False
+scene2.userspin = False
+
+scene2.append_to_caption("\n  Boundary: ")
 bc_menu = menu(choices=bc_names, index=0, bind=on_bc)
-scene.append_to_caption("    Shape: ")
+scene2.append_to_caption("    Shape: ")
 shape_menu = menu(choices=shape_names, bind=on_shape)
-scene.append_to_caption("    Material: ")
+scene2.append_to_caption("    Material: ")
 mat_menu = menu(choices=mat_names, bind=on_mat)
-scene.append_to_caption("  E = ")
+scene2.append_to_caption("  E = ")
 matE_text = wtext(text="200.0 GPa")
 
-scene.append_to_caption("\n\n  L: ")
+scene2.append_to_caption("\n\n  L: ")
 L_readout = wtext(text="6.0 m")
-scene.append_to_caption("  ")
+scene2.append_to_caption("  ")
 L_slider = slider(min=2, max=12, value=6, length=220, bind=on_L)
-scene.append_to_caption("    h: ")
+scene2.append_to_caption("    h: ")
 BH_readout = wtext(text="0.30 m")
-scene.append_to_caption("  ")
+scene2.append_to_caption("  ")
 BH_slider = slider(min=0.1, max=0.8, value=0.3, length=180, bind=on_BH)
-scene.append_to_caption("    b: ")
+scene2.append_to_caption("    b: ")
 BW_readout = wtext(text="0.10 m")
-scene.append_to_caption("  ")
+scene2.append_to_caption("  ")
 BW_slider = slider(min=0.05, max=0.5, value=0.1, length=180, bind=on_BW)
-scene.append_to_caption("   I = ")
+scene2.append_to_caption("   I = ")
 I_text = wtext(text=str(round(I_beam*1e6,3)) + " x10-6 m^4")
 
-scene.append_to_caption("\n\n  Force magnitude: ")
+scene2.append_to_caption("\n\n  Force magnitude: ")
 force_readout = wtext(text="50 kN")
-scene.append_to_caption("\n  ")
+scene2.append_to_caption("\n  ")
 force_slider = slider(min=1, max=150, value=50, length=280, bind=on_force)
 
-scene.append_to_caption("\n\n  Force angle (0=right, 90=up, 270=down): ")
+scene2.append_to_caption("\n\n  Force angle (0=right, 90=up, 270=down): ")
 angle_readout = wtext(text="270 deg")
-scene.append_to_caption("\n  ")
+scene2.append_to_caption("\n  ")
 angle_slider = slider(min=0, max=359, value=270, length=280, bind=on_angle)
 
-scene.append_to_caption("\n\n  ")
+scene2.append_to_caption("\n\n  ")
 button(text="Clear all", bind=on_clear)
-scene.append_to_caption("    ")
+scene2.append_to_caption("    ")
 button(text="Undo last", bind=on_undo)
-scene.append_to_caption("    ")
+scene2.append_to_caption("    ")
 checkbox(text="Show tension / compression", bind=on_tc)
 
-scene.append_to_caption("\n\n  Forces placed: ")
+scene2.append_to_caption("\n\n  Forces placed: ")
 count_text = wtext(text="0")
 
-scene.append_to_caption("\n\n  Max bending stress: ")
+scene2.append_to_caption("\n\n  Max bending stress: ")
 stress_text = wtext(text="0 MPa")
-scene.append_to_caption("\n  Tip deflection: ")
+scene2.append_to_caption("\n  Tip deflection: ")
 deflect_text = wtext(text="0 mm")
-scene.append_to_caption("\n  Max strain: ")
+scene2.append_to_caption("\n  Max strain: ")
 strain_text = wtext(text="0 micro-strain")
-scene.append_to_caption("\n\n  Click beam to place force. Drag to rotate.\n")
+scene2.append_to_caption("\n\n  Click beam to place force. Drag to rotate.\n")
+scene2.append_to_caption("\n\n \n")
 
 wall.visible = True
 left_support.visible = False
 right_support.visible = False
 
 scene.bind("click", place_force)
+
+stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
+deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)

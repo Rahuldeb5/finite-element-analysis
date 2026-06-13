@@ -1,8 +1,14 @@
 Web VPython 3.2
 
+<<<<<<< Updated upstream
 mat_names   = ["Steel", "Aluminum"]
 mat_E       = [200e9, 69e9]
 mat_yield   = [250e6, 95e6]
+=======
+mat_names   = ["Steel", "Aluminum", "Tungsten Carbide", "Diamond"]
+mat_E       = [200e9, 69e9, 620e9, 1150e9]
+mat_yield   = [250e6, 95e6, 500e6, 2800e6]
+>>>>>>> Stashed changes
 shape_names = ["Thin Beam", "Square Block", "Wide Plate"]
 shape_BH    = [0.3, 0.3, 0.5]
 shape_BW    = [0.1, 0.3, 0.1]
@@ -30,9 +36,9 @@ scene.align = 'left'
 
 wall = box(pos=vec(-3.25, 0, 0), length=0.5, height=1.2, width=1.0,
            color=vec(0.45,0.45,0.5))
-left_support  = box(pos=vec(-3, 0, 0), length=0.2, height=0.4, width=max(0.6, BW*4),
+left_support  = box(pos=vec(-3, 0, 0), length=0.2, height=max(0.4, BH*1.5), width=max(0.6, BW*4),
                     color=vec(0.45,0.45,0.5), visible=False)
-right_support = box(pos=vec(3,  0, 0), length=0.2, height=0.4, width=max(0.6, BW*4),
+right_support = box(pos=vec(3,  0, 0), length=0.2, height=max(0.4, BH*1.5), width=max(0.6, BW*4),
                     color=vec(0.45,0.45,0.5), visible=False)
 click_target = box(pos=vec(0, 0, 0), length=L+1.0, height=BH+1.5, width=0.02,
                    opacity=0.0, color=vec(0.5,0.6,0.8))
@@ -176,11 +182,11 @@ def update_geometry():
     wall.visible          = BC == "Cantilever"
     left_support.visible  = BC != "Cantilever"
     right_support.visible = BC != "Cantilever"
-    left_support.pos    = vec(-3, -BH/2, 0)
-    left_support.height = 0.4
+    left_support.pos    = vec(-3, 0, 0)
+    left_support.height = max(0.4, BH * 1.5)
     left_support.width  = max(0.6, BW * 4)
-    right_support.pos   = vec(-3 + L, -BH/2, 0)
-    right_support.height = 0.4
+    right_support.pos   = vec(-3 + L, 0, 0)
+    right_support.height = max(0.4, BH * 1.5)
     right_support.width  = max(0.6, BW * 4)
     for a in placed_arrows: a.visible = False
     for lb in placed_labels: lb.visible = False
@@ -240,9 +246,9 @@ def place_force(evt):
     direction = vec(dx, dy, 0)
     base_y = deflect_at(a_pos) * 100
     start  = vec(fx, base_y, BW/2) - direction * 1.8
-    ar  = arrow(pos=start, axis=direction*1.6, color=color.black,
+    ar  = arrow(canvas=scene, pos=start, axis=direction*1.6, color=color.black,
                 shaftwidth=0.07, headwidth=0.18, headlength=0.13)
-    lbl = label(pos=start - direction*0.3,
+    lbl = label(canvas=scene, pos=start - direction*0.3,
                 text=str(int(mag)) + " kN @ " + str(int(ang)) + " deg",
                 color=color.black, box=False, height=12)
     placed_arrows.append(ar)
@@ -351,7 +357,11 @@ for k in range(11):
 label(pos=vec(1,-3,0),         text="0",   color=color.black, box=False, height=11)
 legend_hi = label(pos=vec(1,-3+10*0.6,0), text="max", color=color.black, box=False, height=11)
 
+<<<<<<< Updated upstream
 scene2 = canvas(width = 1000, height = 50, background = vec(0, 0, 0))
+=======
+scene2 = canvas(width = 1000, height = 50, background = color.white)
+>>>>>>> Stashed changes
 scene2.camera.pos = vec(0, 0, 10)
 scene2.camera.axis = vec(0, 0, -1)
 scene2.userzoom = False
@@ -417,4 +427,8 @@ right_support.visible = False
 scene.bind("click", place_force)
 
 stress_curve  = gcurve(graph=graph(title="Stress sigma(x)",    xtitle="x (m)", ytitle="MPa", width=440, height=220, fast=False, align = 'left'), color=color.red)
+<<<<<<< Updated upstream
 deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)
+=======
+deflect_curve = gcurve(graph=graph(title="Deflection delta(x)",xtitle="x (m)", ytitle="mm",  width=440, height=220, fast=False, align = 'left'), color=color.blue)
+>>>>>>> Stashed changes
